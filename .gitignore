@@ -1,1 +1,13 @@
 *~
+/build
+/.qt
+/CMakeFiles
+CMakeCache.txt
+cmake_install.cmake
+/src/baselib/CMakeFiles
+/src/build/CMakeFiles
+/src/hdf5tools/CMakeFiles
+/src/opti/CMakeFiles
+/src/phaselib/CMakeFiles
+/src/phaseqt/CMakeFiles
+/.vscode

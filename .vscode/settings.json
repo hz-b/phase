@@ -1,0 +1,12 @@
+{
+  "cmake.sourceDirectory": "${workspaceFolder}",
+  "cmake.buildDirectory": "${workspaceFolder}/build",
+  "cmake.generator": "Unix Makefiles",
+  "cmake.configureArgs": [
+    "-DCMAKE_Fortran_COMPILER=gfortran",
+    "-DCMAKE_BUILD_TYPE=Release"
+  ],
+  "cmake.installPrefix": "$HOME/.local",
+  "cmake.configureOnOpen": false,
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+}

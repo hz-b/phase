@@ -49,7 +49,7 @@
 #endif
 
 #include <cmath>                     // for abs
-#include <tr1/functional>            // for std::tr1
+#include <functional>
 
 #include "mainwindow.h"
 #include "phaseqt.h"
@@ -142,8 +142,8 @@ void MainWindow::activateProc(const QString &action)
 
       // *future= QtConcurrent::map(vector, my_funcv);
       // to pass additional parameters we have to use boost or std::tr1
-      *future= QtConcurrent::map(vector, std::tr1::bind(BuildElement, 
-							std::tr1::placeholders::_1, bl)); // one additional par 
+      *future= QtConcurrent::map(vector, std::bind(BuildElement,
+							std::placeholders::_1, bl)); // one additional par 
       watcher->setFuture(*future);
     }
   
@@ -154,8 +154,8 @@ void MainWindow::activateProc(const QString &action)
       qDebug() << "test asynchronous tasks with threads";
       // *future= QtConcurrent::map(vector, my_funcv);
       // to pass additional parameters we have to use boost or std::tr1
-      *future= QtConcurrent::map(vector, std::tr1::bind(my_funcv, 
-							std::tr1::placeholders::_1, 1000)); // one additional par 
+      *future= QtConcurrent::map(vector, std::bind(my_funcv,
+							std::placeholders::_1, 1000)); // one additional par 
       watcher->setFuture(*future);
     }
 
@@ -277,7 +277,7 @@ void MainWindow::activateProc(const QString &action)
 	      bl->BLOptions.PSO.intmod= 2;
 	      
 	      cout << "create future" << endl;
-	      *future= QtConcurrent::map(vector, std::tr1::bind(pstc_i, std::tr1::placeholders::_1, bl, 
+	      *future= QtConcurrent::map(vector, std::bind(pstc_i, std::placeholders::_1, bl,
 								m4p_cpp, csp_cpp
 								)); // one additional par 
 	      watcher->setFuture(*future);

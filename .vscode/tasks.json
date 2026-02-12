@@ -1,0 +1,66 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CMake: Configure",
+      "type": "shell",
+      "command": "sh",
+      "args": [
+        "-c",
+        "if [ \"$(uname -s)\" = \"Darwin\" ]; then cmake -S . -B build -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_Fortran_COMPILER=\"$(command -v gfortran)\" -DCMAKE_BUILD_TYPE=Release; else cmake -S . -B build -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Release; fi"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: Build",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build",
+        "-j"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "dependsOn": "CMake: Configure",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: Install (~/.local)",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--install",
+        "build",
+        "--prefix",
+        "${env:HOME}/.local"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "dependsOn": "CMake: Build",
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: Reconfigure (fresh)",
+      "type": "shell",
+      "command": "sh",
+      "args": [
+        "-c",
+        "rm -f build/CMakeCache.txt && if [ \"$(uname -s)\" = \"Darwin\" ]; then cmake -S . -B build -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_Fortran_COMPILER=\"$(command -v gfortran)\" -DCMAKE_BUILD_TYPE=Release; else cmake -S . -B build -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Release; fi"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

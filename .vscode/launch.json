@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug phaseqt (C/C++)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/src/phaseqt/phaseqt",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [
+        {
+          "name": "PHASE_HOME",
+          "value": "${workspaceFolder}"
+        }
+      ],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "CMake: Build"
+    },
+    {
+      "name": "Debug phaseqt (CodeLLDB)",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/src/phaseqt/phaseqt",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PHASE_HOME": "${workspaceFolder}"
+      },
+      "preLaunchTask": "CMake: Build"
+    }
+  ]
+}

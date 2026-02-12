@@ -50,6 +50,7 @@
 
 #include <cmath>                     // for abs
 #include <functional>
+#include <unistd.h>
 
 #include "mainwindow.h"
 #include "phaseqt.h"
@@ -2518,11 +2519,12 @@ void MainWindow::openBeamline()
 						  //"/afs/psi.ch/user/f/flechsig/phase/data",
 						  tr("Phase files (*.phase);;(*)")
 						  );
-  char *name;
+  char name[MaxPathLength];
   
   if (!fileName.isEmpty()) 
     {
-      name= fileName.toLocal8Bit().data();
+      QByteArray fileNameBytes= fileName.toLocal8Bit();
+      snprintf(name, MaxPathLength, "%s", fileNameBytes.constData());
       cout << "MainWindow::newBeamline: try to read file: " << name << endl;
       rcode= myparent->myReadBLFile(name);
       if (rcode != -1)
@@ -2537,8 +2539,16 @@ void MainWindow::openBeamline()
 	  myparent->myPutPHASE((char*) MainPickName);
 	} 
       else
-	QMessageBox::information(this, tr("Phase: newBeamline"),
-				 tr("Cannot load %1.\n Wrong file type or file not found!").arg(fileName));
+	{
+	  char cwd[1024];
+	  const char *cwd_text;
+	  cwd_text= (getcwd(cwd, sizeof(cwd)) != NULL) ? cwd : "<unknown>";
+	  QMessageBox::information(this, tr("Phase: newBeamline"),
+				   tr("Cannot load %1.\nWrong file type or file not found!\n\nTried path: %2\nCurrent directory: %3")
+				   .arg(fileName)
+				   .arg(QString::fromLocal8Bit(name))
+				   .arg(QString::fromLocal8Bit(cwd_text)));
+	}
     }
   //myparent->myBeamline()->myPHASEset::print();
   UpdateStatus();
@@ -2836,7 +2846,7 @@ void MainWindow::save()
 // slot
 void MainWindow::saveas()
 {
-    char *name;
+    char name[MaxPathLength];
     QString fileName = QFileDialog::getSaveFileName(this,
                         tr("Choose a file name"), ".",
                         tr("PHASE (*.phase)"));
@@ -2847,7 +2857,8 @@ void MainWindow::saveas()
       return;
     }
 
-  name= fileName.toLocal8Bit().data();
+  QByteArray fileNameBytes= fileName.toLocal8Bit();
+  snprintf(name, MaxPathLength, "%s", fileNameBytes.constData());
 
 #ifdef DEBUG
   OUTDBG("saveas() called, filename: " << name );

@@ -1,142 +1,217 @@
 cmake_minimum_required(VERSION 3.20)
+
 project(phase
   VERSION 1.33
   DESCRIPTION "PHASE Simulation Software"
   LANGUAGES C CXX Fortran
 )
-# Setze die CMake-Module-Pfade
+
+include(GNUInstallDirs)
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 
-# Optionen und Einstellungen
-option(USE_MPI "Enable MPI support" AUTO)
+# Build options
+option(USE_MPI "Enable MPI support" OFF)
 option(USE_DEBUG "Enable debug build" OFF)
-option(USE_EXPERIMENTAL "Enable experimental features" OFF)
-option(USE_F2C "Enable F2C compatibility" OFF)
-option(USE_PHASELIB "Use legacy PHASELIB" OFF)
 option(USE_OPENMP "Enable OpenMP" OFF)
 option(USE_QT6 "Prefer Qt6 over Qt5" ON)
 option(USE_QWT "Enable QWT support" ON)
+set(PHASE_QT_PREFIX "" CACHE PATH "Optional Qt installation prefix (contains lib/cmake/Qt6 or lib/cmake/Qt5)")
+
+option(BUILD_PHASEQT "Build phaseqt GUI" ON)
+option(BUILD_PHASESRV "Build phasesrv" ON)
+option(BUILD_HDF5TOOLS "Build hdf5tools" ON)
+option(BUILD_FKOE "Build fkoe" ON)
+option(BUILD_OPTI "Build opti (experimental)" OFF)
+option(BUILD_BASELIB "Build baselib (experimental)" OFF)
+option(BUILD_PHASELIB "Build phaselib (experimental)" OFF)
 
 set(GRIDSIZE 1 CACHE STRING "Max grid size for PO source")
 
-# Compiler-Einstellungen
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(PHASE_QT_PREFIX)
+  list(PREPEND CMAKE_PREFIX_PATH "${PHASE_QT_PREFIX}")
+endif()
 
 if(USE_DEBUG)
-  add_compile_definitions(DEBUG)
-  set(CMAKE_BUILD_TYPE Debug)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb")
+  set(default_build_type Debug)
 else()
-  set(CMAKE_BUILD_TYPE Release)
+  set(default_build_type Release)
 endif()
 
-# Compiler-spezifische Einstellungen
-if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
-  add_compile_definitions(HAVE_INTEL_F77)
-  set(Fortran_FLAGS "-DINTEL -132 -nogen-interfaces -threads -auto -noalign")
-elseif(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE STRING "Build type" FORCE)
+endif()
+
+# Legacy C sources rely on permissive C behavior and configure-style feature defines.
+set(CMAKE_C_STANDARD 90)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS ON)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+add_library(phase_common_flags INTERFACE)
+target_compile_definitions(phase_common_flags INTERFACE
+  LINUX
+  STDC_HEADERS=1
+  HAVE_UNISTD_H=1
+  HAVE_ERRNO_H=1
+  SEVEN_ORDER=1
+  VERSION="${PROJECT_VERSION}"
+  CONFIGURED="cmake"
+  GRIDSIZE=${GRIDSIZE}
+)
+target_include_directories(phase_common_flags INTERFACE
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/phase"
+)
+
+if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+  target_compile_options(phase_common_flags INTERFACE
+    "$<$<COMPILE_LANGUAGE:C>:-Wno-implicit-function-declaration>"
+  )
+endif()
+
+# Fortran compiler compatibility markers used in the GUI and naming conventions.
+if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU|LLVMFlang|Flang")
   add_compile_definitions(HAVE_GFORTRAN_F77)
-  set(Fortran_FLAGS "--std=legacy -DGNU")
+elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
+  add_compile_definitions(HAVE_INTEL_F77)
+elseif(CMAKE_Fortran_COMPILER_ID MATCHES "PGI|NVHPC")
+  add_compile_definitions(HAVE_PORTLAND_F77)
 endif()
 
-# MPI Unterstützung
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+  add_compile_options("$<$<COMPILE_LANGUAGE:Fortran>:--std=legacy>")
+endif()
+
+if(CMAKE_Fortran_COMPILER_ID MATCHES "LLVMFlang|Flang")
+  message(WARNING
+    "LLVM Flang is not fully compatible with PHASE legacy Fortran sources. "
+    "For phaseqt/phasesrv builds, prefer -DCMAKE_Fortran_COMPILER=gfortran."
+  )
+endif()
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+  add_compile_definitions(HAVE_X86_64)
+endif()
+
 if(USE_MPI)
   find_package(MPI REQUIRED)
   add_compile_definitions(USE_MPI)
 endif()
 
-# Qt Unterstützung
-if(USE_QT6)
-  find_package(Qt6 COMPONENTS Core Gui Widgets Svg LinguistTools REQUIRED)
-else()
-  find_package(Qt5 5.9 COMPONENTS Core Gui Widgets Svg LinguistTools REQUIRED)
-endif()
-
-# QWT Unterstützung
-if(USE_QWT)
-  find_package(Qwt REQUIRED)
-  add_compile_definitions(HAVE_QWT)
-endif()
-
-# HDF5 Unterstützung
-find_package(HDF5 REQUIRED COMPONENTS C HL)
-
-# FFTW3 Unterstützung
-find_package(FFTW3 REQUIRED)
-
-# ROOT Framework
-find_package(ROOT REQUIRED)
-
-# OpenMP
 if(USE_OPENMP)
   find_package(OpenMP REQUIRED)
-  add_compile_definitions(OPENMP)
 endif()
 
-# Systemchecks
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-  add_compile_definitions(HAVE_X86_64)
+set(PHASE_NEEDS_HDF5 OFF)
+if(BUILD_PHASEQT OR BUILD_PHASESRV OR BUILD_HDF5TOOLS OR BUILD_FKOE OR BUILD_OPTI)
+  set(PHASE_NEEDS_HDF5 ON)
 endif()
 
-# Installationspfade
-set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "Installation directory")
-set(PHASE_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/phase")
+if(PHASE_NEEDS_HDF5)
+  find_package(HDF5 REQUIRED COMPONENTS C HL)
+  add_library(phase_hdf5 INTERFACE)
+  target_compile_definitions(phase_hdf5 INTERFACE HAVE_HDF5)
+  target_include_directories(phase_hdf5 INTERFACE ${HDF5_INCLUDE_DIRS})
+  target_link_libraries(phase_hdf5 INTERFACE ${HDF5_LIBRARIES})
+endif()
 
-# Unterverzeichnisse
-add_subdirectory(src/baselib)
-add_subdirectory(src/phaseqt)
-add_subdirectory(src/phaselib)
-add_subdirectory(src/opti)
-add_subdirectory(src/hdf5tools)
+set(PHASE_NEEDS_FFTW3 OFF)
+if(BUILD_PHASEQT OR BUILD_PHASESRV OR BUILD_OPTI)
+  set(PHASE_NEEDS_FFTW3 ON)
+endif()
 
-# Bibliotheken
-#add_library(phase_common STATIC)
-#target_sources(phase_common PRIVATE
-#  # Quellendateien hier einfügen
-#)
+if(PHASE_NEEDS_FFTW3)
+  find_package(FFTW3 REQUIRED)
+  add_library(phase_fftw3 INTERFACE)
+  target_compile_definitions(phase_fftw3 INTERFACE HAVE_FFTW3)
+  target_include_directories(phase_fftw3 INTERFACE ${FFTW3_INCLUDE_DIRS})
+  target_link_libraries(phase_fftw3 INTERFACE ${FFTW3_LIBRARIES})
+endif()
 
-#target_include_directories(phase_common PUBLIC
-#  ${CMAKE_CURRENT_SOURCE_DIR}/include
-#  ${HDF5_INCLUDE_DIRS}
-#  ${FFTW3_INCLUDE_DIRS}
-#  ${ROOT_INCLUDE_DIRS}
-#)
+if(BUILD_PHASEQT OR BUILD_PHASESRV)
+  find_package(Threads REQUIRED)
+  add_library(phase_threads INTERFACE)
+  target_link_libraries(phase_threads INTERFACE Threads::Threads)
+endif()
 
-#target_link_libraries(phase_common PUBLIC
-#  ${HDF5_LIBRARIES}
-#  ${FFTW3_LIBRARIES}
-#  ${ROOT_LIBRARIES}
-#)
+set(PHASE_NEEDS_RUNTIME_LIB OFF)
+if(BUILD_PHASEQT OR BUILD_PHASESRV OR BUILD_OPTI)
+  set(PHASE_NEEDS_RUNTIME_LIB ON)
+endif()
 
-# Executables
-#add_executable(phase_main main.cpp)
-#target_link_libraries(phase_main PRIVATE
-#  phase_common
-#  Qt::Core
-#  Qt::Gui
-#  ${QWT_LIBRARIES}
-#)
+if(PHASE_NEEDS_RUNTIME_LIB)
+  add_library(phase_runtime STATIC
+    src/phaselib/misali_8.f
+    src/phaselib/misali4_8.f
+    src/phaselib/misali3_8.f
+    src/phaselib/misali2_8.f
+    src/phaselib/misali1_8.f
+    src/phaselib/wdfgmapm17.for
+    src/phaselib/wdfgmapm27.for
+    src/phaselib/wdfgmapl7.for
+    src/phaselib/q0_q1_q2_8.for
+  )
+  target_link_libraries(phase_runtime PUBLIC phase_common_flags)
+endif()
 
-#if(USE_MPI)
-#  target_link_libraries(phase_main PRIVATE MPI::MPI_CXX)
-#endif()
+if(BUILD_OPTI)
+  find_package(ROOT REQUIRED COMPONENTS Minuit)
+  add_library(phase_root INTERFACE)
+  target_include_directories(phase_root INTERFACE ${ROOT_INCLUDE_DIRS})
+  target_link_libraries(phase_root INTERFACE ${ROOT_LIBRARIES})
+endif()
 
-# Installation
-#install(TARGETS phase_main DESTINATION bin)
-#install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/idl DESTINATION share/phase)
-#install(FILES config.h DESTINATION include/phase)
+if(BUILD_BASELIB)
+  add_subdirectory(src/baselib)
+endif()
 
-# Benutzerdefinierte Meldungen
+if(BUILD_PHASELIB)
+  add_subdirectory(src/phaselib)
+endif()
+
+if(BUILD_PHASEQT)
+  add_subdirectory(src/phaseqt)
+endif()
+
+if(BUILD_PHASESRV)
+  add_subdirectory(src/phasesrv)
+endif()
+
+if(BUILD_HDF5TOOLS)
+  add_subdirectory(src/hdf5tools)
+endif()
+
+if(BUILD_FKOE)
+  add_subdirectory(src/fkoe)
+endif()
+
+if(BUILD_OPTI)
+  add_subdirectory(src/opti)
+endif()
+
 message(STATUS "Build configuration summary:")
 message(STATUS "  Install prefix:      ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "  Build type:          ${CMAKE_BUILD_TYPE}")
+message(STATUS "  GRIDSIZE:            ${GRIDSIZE}")
 message(STATUS "  MPI support:         ${USE_MPI}")
-message(STATUS "  Qt version:          ${Qt_VERSION}")
-message(STATUS "  QWT support:         ${USE_QWT}")
-message(STATUS "  HDF5 version:        ${HDF5_VERSION}")
-message(STATUS "  FFTW3 support:       ${FFTW3_FOUND}")
-message(STATUS "  ROOT version:        ${ROOT_VERSION}")
 message(STATUS "  OpenMP support:      ${USE_OPENMP}")
+message(STATUS "  Build phaseqt:       ${BUILD_PHASEQT}")
+message(STATUS "  Build phasesrv:      ${BUILD_PHASESRV}")
+message(STATUS "  Build hdf5tools:     ${BUILD_HDF5TOOLS}")
+message(STATUS "  Build fkoe:          ${BUILD_FKOE}")
+message(STATUS "  Build opti:          ${BUILD_OPTI}")
+message(STATUS "  Build baselib:       ${BUILD_BASELIB}")
+message(STATUS "  Build phaselib:      ${BUILD_PHASELIB}")
+if(PHASE_QT_PREFIX)
+  message(STATUS "  Qt prefix hint:      ${PHASE_QT_PREFIX}")
+endif()
+if(HDF5_FOUND)
+  message(STATUS "  HDF5 version:        ${HDF5_VERSION}")
+endif()
+if(FFTW3_FOUND)
+  message(STATUS "  FFTW3 support:       ${FFTW3_FOUND}")
+endif()

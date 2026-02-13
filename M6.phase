@@ -1,14 +1,14 @@
 Fg3PickFileType 20230809
 This is a datafile of PHASE, file version AUG 2023
-Written by WriteBLFile on Thu Feb 12 12:09:40 2026
+Written by WriteBLFile on Thu Feb 12 21:13:35 2026
 
 SOURCE
                    o    *** Point Source for Ray Tracing ***
-              0,0003    sigma y
-                 2,4    sigma dy
-              0,0003    sigma z
-                 3,4    sigma dz
-               50000    number of GO points
+               0,093    sigma y
+                   1    sigma dy
+                0,05    sigma z
+                   1    sigma dz
+               25000    number of GO points
 
 Data of optical Elements
 ELEMENTS
@@ -64,7 +64,7 @@ CONTROL_FLAGS
                    0 inorm1
                   40 inorm2 (0, 1, 2, 40)
                    0 derive matrix elements in 3 different ways (1) (for debugging)
-                   1 (1): phase advance for grating, (0): mirror
+                   0 (1): phase advance for grating, (0): mirror
                    0 insert pinhole array in source plane (0)
                    0 enable delta lambda
                    0 delta lambda (nm)
@@ -102,14 +102,14 @@ INTEGRATION
                    0  ianz0_fixed 
 
 PSSOURCES
-                   7  source type 
+                   1  source type 
                  243  so1c: nyz         
-               2e-05  so1c: waist (m)   
-               0,001  so1c: widthyz (m) 
+                   0  so1c: waist (m)   
+                   0  so1c: widthyz (m) 
                    0  so1c: dist (m)    
 
 OPTIONS
-                   1     (1) RT Source to Image 
+                   2     (1) RT Source to Image 
               0,0001     epsilon
                    0     command line flag -m calculation mode
              4,13281     lambda [nm]
@@ -143,7 +143,7 @@ FILENAMES
 M6.map                   Map name
 M6.omx                   Matrix name
 M6.inp                   GO input
-M6.out                   PO/GO output
+/Users/hdm/rep/phase/M6.out     PO/GO output
 M6.pcko                  Optimization input
 M6.opti                  Optimization results
 M6.s4a                   so4_fsource4a

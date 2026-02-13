@@ -1,5 +1,15 @@
 cmake_minimum_required(VERSION 3.20)
 
+# PHASE uses legacy Fortran sources that require gfortran in practice.
+# If no compiler was specified explicitly, prefer gfortran automatically.
+if(NOT DEFINED CMAKE_Fortran_COMPILER AND NOT DEFINED ENV{FC})
+  find_program(PHASE_DEFAULT_GFORTRAN NAMES gfortran)
+  if(PHASE_DEFAULT_GFORTRAN)
+    set(CMAKE_Fortran_COMPILER "${PHASE_DEFAULT_GFORTRAN}" CACHE FILEPATH
+      "Fortran compiler used by PHASE")
+  endif()
+endif()
+
 project(phase
   VERSION 1.33
   DESCRIPTION "PHASE Simulation Software"
@@ -62,6 +72,7 @@ target_compile_definitions(phase_common_flags INTERFACE
   VERSION="${PROJECT_VERSION}"
   CONFIGURED="cmake"
   GRIDSIZE=${GRIDSIZE}
+  PHASE_SOURCE_TREE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 target_include_directories(phase_common_flags INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/src/phase"
@@ -87,9 +98,12 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "LLVMFlang|Flang")
-  message(WARNING
-    "LLVM Flang is not fully compatible with PHASE legacy Fortran sources. "
-    "For phaseqt/phasesrv builds, prefer -DCMAKE_Fortran_COMPILER=gfortran."
+  message(FATAL_ERROR
+    "LLVM Flang is not compatible with PHASE legacy Fortran sources.\n"
+    "Use gfortran instead. Example:\n"
+    "  rm -rf build\n"
+    "  cmake -S . -B build -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Release\n"
+    "  cmake --build build -j"
   )
 endif()
 

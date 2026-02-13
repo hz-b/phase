@@ -239,7 +239,7 @@ if(UNIX AND NOT APPLE)
 endif()
 
 install(TARGETS phaseqt RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(FILES
+set(PHASEQT_RUNTIME_DATA_FILES
   ../data/coefficient-example.coeff
   ../data/map70_lh.omx
   ../data/map70_rh.omx
@@ -277,7 +277,18 @@ install(FILES
   ../data/henke/U.f12 ../data/henke/V.f12 ../data/henke/W.f12
   ../data/henke/Xe.f12 ../data/henke/Yb.f12 ../data/henke/Y.f12
   ../data/henke/Zn.f12 ../data/henke/Zr.f12 ../data/henke/B4C.f12
+)
+
+install(FILES
+  ${PHASEQT_RUNTIME_DATA_FILES}
   DESTINATION ${CMAKE_INSTALL_DATADIR}/phaseqt/data
+)
+
+# Compatibility install path for legacy runtime code that still probes
+# ${PHASE_HOME}/share/phase/<file>.
+install(FILES
+  ${PHASEQT_RUNTIME_DATA_FILES}
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/phase
 )
 
 install(FILES

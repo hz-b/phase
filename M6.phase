@@ -1,0 +1,158 @@
+Fg3PickFileType 20230809
+This is a datafile of PHASE, file version AUG 2023
+Written by WriteBLFile on Thu Feb 12 21:13:35 2026
+
+SOURCE
+                   o    *** Point Source for Ray Tracing ***
+               0,093    sigma y
+                   1    sigma dy
+                0,05    sigma z
+                   1    sigma dz
+               25000    number of GO points
+
+Data of optical Elements
+ELEMENTS
+                   1   number of elements 
+
+
+Element 1
+                  M6     name of elem. 
+
+GEOMETRY 1
+                  86  theta              
+                2000     source distance    
+                 200     image  distance    
+                   0  line density x[0] 
+                   0  line density x[1] 
+                   0  line density x[2] 
+                   0  line density x[3] 
+                   0  line density x[4] 
+                   1     diffraction order  
+                   0     flag               
+                   1     azimut * Pi/2      
+
+MIRROR 1  
+                  78     element type
+                2000     source distance (ARC)
+                 200     image  distance (ARC)
+                -1,1     theta (ARC)
+             5212,94     radius rw (r)       
+              25,366     radius rl (rho)     
+                   0     translation flag
+                -100     wmin
+                 100     wmax
+                 -20     lmin
+                  20     lmax
+                0,01     slope w (arcsec rms)
+                0,08     slope l (arcsec rms)
+                   0     misalignment du
+                   0     misalignment dw
+                   0     misalignment dl
+                   0     misalignment dRu (rad)
+                   0     misalignment dRw (rad)
+                   0     misalignment dRl (rad)
+                  Au     material
+
+CONTROL_FLAGS
+                   4 map- order (3, 4)
+                   0 iordsc (4)
+                   1 expansion of pathlength (1)
+                   1 numerical (0), analytical (1) subtraction of ideal path length
+                   1 write 4-dim brightness to file (1)
+                   0 Integration simps (0), spline 1, -1
+                   0 (1) normalize output, (0) do not normalize
+                   0 inorm1
+                  40 inorm2 (0, 1, 2, 40)
+                   0 derive matrix elements in 3 different ways (1) (for debugging)
+                   0 (1): phase advance for grating, (0): mirror
+                   0 insert pinhole array in source plane (0)
+                   0 enable delta lambda
+                   0 delta lambda (nm)
+                   1 GO enable ray_set1
+
+APERTURES
+                 100 radius of pinhole in source plane (mm)
+                -100 aperture in source plane, ymin (mm)
+                 100 aperture in source plane, ymax (mm)
+                -100 aperture in source plane, zmin (mm)
+                 100 aperture in source plane, zmax (mm)
+                 100 radius in aperture plane
+                -100 aperture in ap. plane, ymin (mm)
+                 100 aperture in ap. plane, ymax (mm)
+                -100 aperture in ap. plane, zmin (mm)
+                 100 aperture in ap. plane, zmax (mm)
+
+INTEGRATION
+                   0 distance to focus 
+                   0 distance to focus 
+                  51     ianzy0
+                  51     ianzz0
+              -0,001     ymin 
+               0,001     ymax 
+              -0,001     zmin 
+               0,001     zmax 
+                   0     d12_max 
+                   0  iamp_smooth (0,1,2)   
+                   0  iord_amp   
+                   0  iord_pha   
+                   0  ifm_amp   
+                   0  ifm_pha   
+                   0  id12; (1) print d12 on file 
+                   0  ianz0_cal 
+                   0  ianz0_fixed 
+
+PSSOURCES
+                   1  source type 
+                 243  so1c: nyz         
+                   0  so1c: waist (m)   
+                   0  so1c: widthyz (m) 
+                   0  so1c: dist (m)    
+
+OPTIONS
+                   2     (1) RT Source to Image 
+              0,0001     epsilon
+                   0     command line flag -m calculation mode
+             4,13281     lambda [nm]
+                   0     dispersive length
+                   0     * y = dlambda
+                   0     with alignment
+                   1     footprint at element
+                 512     dy integr. points (PS fixed grid)
+                 512     dz integr. points (PS fixed grid)
+                -0,1     dymin [rad] (PS fixed grid)
+                 0,1     dymax [rad] (PS fixed grid)
+                -0,1     dzmin [rad] (PS fixed grid)
+                 0,1     dzmax [rad] (PS fixed grid)
+                 0,1     y  [mm]   (PS Source)
+               0,001     dy [rad] (PS Source)
+                 0,1     z  [mm]   (PS Source)
+               0,001     dz [rad] (PS Source)
+                   0     flag y  1^= +/-hard, 0^= sigma (0,1)
+                   0     flag dy '' (PS Source)
+                   0     flag z  '' (PS Source)
+                   0     flag dz '' (PS Source)
+                   2     flag <> 2 fixed grid integr.
+                   0     use (old) REDUCE maps (up to 4th order) 
+                   2     pst_mode (0: pstf.F, 1: pstc, 2: pstc_with m2p)
+                   0     PO with_coating (0,1) 
+                   0     PO with_herror  (0,1) 
+                   0     PO iconj        (0,1) 
+                   0     PO wl_check (check size of optics (0,1)) 
+
+FILENAMES
+M6.map                   Map name
+M6.omx                   Matrix name
+M6.inp                   GO input
+/Users/hdm/rep/phase/M6.out     PO/GO output
+M6.pcko                  Optimization input
+M6.opti                  Optimization results
+M6.s4a                   so4_fsource4a
+M6.s4b                   so4_fsource4b
+M6.s4c                   so4_fsource4c
+M6.s4d                   so4_fsource4d
+M6.s6                    so6_fsource6
+M6.h5                    so7 (hdf5 input)
+M6_out.h5                hdf5 output
+M6_surf_err.h5           surface errors (h5)
+
+*** end of file ***

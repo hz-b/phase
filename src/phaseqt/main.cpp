@@ -33,8 +33,10 @@
 #include <QApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QLocale>
 #include <QMessageBox>
 #include <QStringList>
+#include <clocale>
 
 #include "mainwindow.h"
 #include "phaseqt.h"
@@ -70,6 +72,16 @@ static void ensurePhaseHome()
     }
 }
 
+static void forceNumericCDecimal()
+{
+  // Ensure all C stdio/scanner operations use '.' as decimal separator.
+  if (setlocale(LC_NUMERIC, "C") == NULL)
+    cout << "warning: failed to set LC_NUMERIC to C locale" << endl;
+
+  // Keep Qt numeric conversions/widgets aligned with decimal point '.'
+  QLocale::setDefault(QLocale::c());
+}
+
 // dummy function to test threads
 // it must be a function- no member methode
 void my_funcv(int &image, int &parameter)
@@ -86,6 +98,7 @@ int main(int argc, char *argv[])
 {
   int setupswitch, cmode, selected, iord, numthreads, format; 
   QApplication app(argc, argv);
+  forceNumericCDecimal();
   ensurePhaseHome();
   Q_INIT_RESOURCE(phaseqt);
   PhaseQt myphaseQt;                   // create the object on the stack

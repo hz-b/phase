@@ -29,14 +29,21 @@ Dependency requirements depend on enabled modules:
 - For `opti`:
   - ROOT with Minuit
 
-## Example: Ubuntu
+## Example: Ubuntu 24.04 (Qt5)
+
+Ubuntu 24.04 ships Qwt 6.1.4, which is too old for `phaseqt`. Build Qwt >= 6.2
+(tested with 6.3.0, installs to `/usr/local/qwt-6.3.0`, where `FindQwt.cmake` looks):
 
 ```bash
 sudo apt install cmake gfortran g++ libhdf5-dev libfftw3-dev \
-  qtbase5-dev libqt5svg5-dev libqwt-qt5-dev
-cmake -S . -B build -DUSE_QT6=OFF -DCMAKE_Fortran_COMPILER=gfortran \
-  -DBUILD_PHASEQT=OFF   # phaseqt needs Qwt >= 6.2, Ubuntu 24.04 has 6.1.4
+  qtbase5-dev libqt5svg5-dev qttools5-dev libgl1-mesa-dev
+# Qwt 6.3.0 from https://qwt.sourceforge.io (do not install libqwt-qt5-dev)
+qmake qwt.pro && make -j && sudo make install
+cmake -S . -B build -DUSE_QT6=OFF -DCMAKE_Fortran_COMPILER=gfortran
+cmake --build build -j
 ```
+
+Without Qwt, build the non-GUI parts only with `-DBUILD_PHASEQT=OFF`.
 
 ## Quick Start (Full Build)
 

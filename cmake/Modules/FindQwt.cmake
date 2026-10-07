@@ -14,6 +14,8 @@ find_path(QWT_INCLUDE_DIR
         $ENV{QWT_ROOT}/lib/qwt.framework/Headers
         ${QWT_ROOT}/include
         ${QWT_ROOT}/lib/qwt.framework/Headers
+    PATH_SUFFIXES
+        qwt qwt-qt5 qwt6   # Debian/Ubuntu install headers in /usr/include/qwt
 )
 
 if(APPLE)

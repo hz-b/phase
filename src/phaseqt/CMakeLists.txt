@@ -1,3 +1,13 @@
+# phaseqt cannot be configured on its own (it needs the shared targets and options of the
+# top-level project). Use:  cmake -S <phase-root> -B build -DBUILD_PHASEQT=ON
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+  cmake_minimum_required(VERSION 3.20)
+  project(phaseqt_standalone LANGUAGES NONE)
+  message(FATAL_ERROR
+    "phaseqt must be built from the top-level project:\n"
+    "  cmake -S ${CMAKE_CURRENT_SOURCE_DIR}/../.. -B build -DBUILD_PHASEQT=ON")
+endif()
+
 set(PHASE_QT_COMPONENTS Core Gui Widgets Svg PrintSupport Concurrent OpenGL)
 
 if(NOT DEFINED PHASE_QT_PREFIX)

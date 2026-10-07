@@ -69,6 +69,16 @@ cmake --build build -j
 cmake --install build
 ```
 
+## Building a single module
+
+`hdf5tools`, `phasesrv` and `fkoe` can still be configured on their own, as before:
+
+```bash
+cmake -S src/phasesrv -B build-phasesrv -DCMAKE_Fortran_COMPILER=gfortran
+```
+
+`phaseqt` must be built from the top-level project (`-DBUILD_PHASEQT=ON`).
+
 ## Main Build Options
 
 ```text

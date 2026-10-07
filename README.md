@@ -24,9 +24,19 @@ Dependency requirements depend on enabled modules:
   - FFTW3
 - For `phaseqt`:
   - Qt (Qt6 preferred, Qt5 supported)
-  - Qwt (if `USE_QWT=ON`)
+  - Qwt >= 6.2 (if `USE_QWT=ON`); Qwt 6.1.x as shipped with Ubuntu 24.04 is too old
+    (the sources use `QWT_OVERRIDE`)
 - For `opti`:
   - ROOT with Minuit
+
+## Example: Ubuntu
+
+```bash
+sudo apt install cmake gfortran g++ libhdf5-dev libfftw3-dev \
+  qtbase5-dev libqt5svg5-dev libqwt-qt5-dev
+cmake -S . -B build -DUSE_QT6=OFF -DCMAKE_Fortran_COMPILER=gfortran \
+  -DBUILD_PHASEQT=OFF   # phaseqt needs Qwt >= 6.2, Ubuntu 24.04 has 6.1.4
+```
 
 ## Quick Start (Full Build)
 

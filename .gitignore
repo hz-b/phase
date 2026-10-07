@@ -25,6 +25,5 @@
 # Runtime-generated local state
 /phase.pck
 
-# Keep root .vscode in repo (shared project tasks/settings)
-# Ignore only nested/local VSCode folders if they appear.
+# Local VSCode folders
 /src/.vscode/

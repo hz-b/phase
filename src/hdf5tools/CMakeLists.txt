@@ -1,3 +1,18 @@
+# Standalone build of this module (as described in src/README.md, e.g.
+#   cmake -B . -S ../hdf5tools):
+# delegate to the top-level project with only this module enabled.
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR AND NOT PHASE_STANDALONE_DELEGATE)
+  cmake_minimum_required(VERSION 3.20)
+  project(hdf5tools_standalone LANGUAGES NONE)
+  foreach(_m PHASEQT PHASESRV HDF5TOOLS FKOE OPTI BASELIB PHASELIB)
+    set(BUILD_${_m} OFF CACHE BOOL "" FORCE)
+  endforeach()
+  set(BUILD_HDF5TOOLS ON CACHE BOOL "" FORCE)
+  set(PHASE_STANDALONE_DELEGATE ON)
+  add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../.." "${CMAKE_BINARY_DIR}/phase")
+  return()
+endif()
+
 set(PHASE_COMMON_SOURCES
   ../phase/error.c
   ../phase/xmalloc.c

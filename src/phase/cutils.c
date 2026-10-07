@@ -167,6 +167,48 @@ int fexists(char *path)
   return ex;
 }
 
+int phase_resolve_data_file(const char *name, char *resolved, int resolved_len)
+{
+  const char *phase_home;
+
+  if ((name == NULL) || (resolved == NULL) || (resolved_len < 8))
+    return 0;
+
+  resolved[0]= '\0';
+
+  phase_home= getenv("PHASE_HOME");
+  if ((phase_home != NULL) && (*phase_home != '\0'))
+    {
+      snprintf(resolved, resolved_len, "%s/share/phase/%s", phase_home, name);
+      if (fexists(resolved))
+        return 1;
+
+      snprintf(resolved, resolved_len, "%s/share/phaseqt/data/%s", phase_home, name);
+      if (fexists(resolved))
+        return 1;
+    }
+
+#ifdef PHASE_SOURCE_TREE_DIR
+  if ((PHASE_SOURCE_TREE_DIR[0] != '\0'))
+    {
+      snprintf(resolved, resolved_len, "%s/src/data/%s", PHASE_SOURCE_TREE_DIR, name);
+      if (fexists(resolved))
+        return 1;
+
+      snprintf(resolved, resolved_len, "%s/src/data/henke/%s", PHASE_SOURCE_TREE_DIR, name);
+      if (fexists(resolved))
+        return 1;
+
+      snprintf(resolved, resolved_len, "%s/src/data/material/%s", PHASE_SOURCE_TREE_DIR, name);
+      if (fexists(resolved))
+        return 1;
+    }
+#endif
+
+  resolved[0]= '\0';
+  return 0;
+}
+
 /* calculates the index of a mX4 fortran- array */
 /* i,j,k,l is the index, m the dimension        */
 int fidx_mX4(int i, int  j, int k, int l, int m)

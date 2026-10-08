@@ -207,6 +207,22 @@ if(BUILD_OPTI)
   add_subdirectory(src/opti)
 endif()
 
+# Runtime data tables, flat layout <prefix>/share/phase/<file> as probed by the code
+# (phase_resolve_data_file). Needed by every program that traces or propagates, also
+# for a headless install without phaseqt.
+if(BUILD_PHASEQT OR BUILD_PHASESRV OR BUILD_OPTI)
+  file(GLOB PHASE_HENKE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/data/henke/*.f12")
+  install(FILES
+    src/data/coefficient-example.coeff
+    src/data/map35_lh.omx src/data/map35_rh.omx
+    src/data/map70_lh.omx src/data/map70_rh.omx
+    src/data/spa3table.tab src/data/spa3table_20001.tab
+    src/data/material/rhoatom.dat
+    ${PHASE_HENKE_FILES}
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/phase
+  )
+endif()
+
 message(STATUS "Build configuration summary:")
 message(STATUS "  Install prefix:      ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "  Build type:          ${CMAKE_BUILD_TYPE}")

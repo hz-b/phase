@@ -294,12 +294,8 @@ install(FILES
   DESTINATION ${CMAKE_INSTALL_DATADIR}/phaseqt/data
 )
 
-# Compatibility install path for legacy runtime code that still probes
-# ${PHASE_HOME}/share/phase/<file>.
-install(FILES
-  ${PHASEQT_RUNTIME_DATA_FILES}
-  DESTINATION ${CMAKE_INSTALL_DATADIR}/phase
-)
+# The data tables are also installed to share/phase/ by the top-level CMakeLists.txt
+# (needed by phasesrv without phaseqt).
 
 install(FILES
   phaseqt.qrc parameter.default
